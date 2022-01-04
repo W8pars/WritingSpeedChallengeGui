@@ -1,0 +1,68 @@
+from tkinter import *
+from tkinter import messagebox
+import time
+import random
+
+
+class WritingProgram():
+    
+    # this just creates the writing program on one the main window
+    def __init__(self, main_window):
+        self.main_window = main_window
+        main_window.title('Think On Your Feet')
+        main_window.config(height=600, width=600, padx=50, pady=50)
+
+        # these will be used for the commands to pick a random prompt and compare passage lengths
+        self.old_passage_length = 0
+        self.new_passage_length = 0
+        self.prompts = ['Twas the night before Christmas....',
+          "It was a cold and rainy night at the local pub, when suddenly a shadowy figure burst through the door...",
+          "What is it they say about the dead and sleep? I forget. Anyways, so there I was. Down to my last bit of strength...",
+          "Ain't no rest for the wicked, but you've been living peacefully the past few years..."
+          ]
+
+        self.first_label = Label(main_window, text="Test your writing skills. Don't stop for more than a minute "
+                                             "or else your progress will be lost!")
+        self.first_label.grid(row=0,column=1)
+        self.writing_prompt_label = Label(main_window, text='Your writing prompt will appear here!')
+        self.writing_prompt_label.grid(row=1,column=1)
+
+        self.generate_prompt_button = Button(main_window, text='Generate Prompt', command=self.choose_prompt)
+        self.generate_prompt_button.grid(row=2, column=0)
+
+        self.start_writing_button = Button(main_window, text='Start Writing!', command=self.check_length)
+        self.start_writing_button.grid(row=2, column=1)
+
+        self.entry_field = Text(main_window, height=100, width=100, padx=50, pady=50)
+        self.entry_field.grid(row=3, column=1)
+
+    # this will select a random prompt from the prompts input. couldn't find any API's to help with this
+    def choose_prompt(self):
+        self.writing_prompt_label.config(text=random.choice(self.prompts))
+
+    def check_length(self):
+
+        #make sure the user has put in something into the entry field
+        self.new_passage_length = len(self.entry_field.get(0.0, 'end'))
+        difference = self.new_passage_length - self.old_passage_length
+
+        # reset the old passage length to the new length for the next check
+        self.old_passage_length = self.new_passage_length
+        if difference < 1:
+            self.entry_field.delete("1.0", 'end')
+            if messagebox.askyesno(title='Do you wish to try again?',
+                                   message='Yes to start over. No to close program.'):
+                return False
+            else:
+                self.main_window.destroy()
+        self.main_window.after(60000, self.check_length)
+
+
+# create window to import into custom class
+window = Tk()
+
+# create instance of custom class
+program = WritingProgram(window)
+
+# run main loop
+window.mainloop()
